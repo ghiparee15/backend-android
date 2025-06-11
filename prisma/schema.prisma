@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int      @id @default(autoincrement())
+  username String   @unique
+  email    String   @unique
+  password String
+  tweets   Tweet[]
+  comments Comment[]
+  likes    Like[]
+}
+
+model Tweet {
+  id        Int       @id @default(autoincrement())
+  content   String
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id])
+  userId    Int
+  comments  Comment[]
+  likes     Like[]
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+  tweet     Tweet    @relation(fields: [tweetId], references: [id])
+  tweetId   Int
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+}
+
+model Like {
+  id      Int   @id @default(autoincrement())
+  tweet   Tweet @relation(fields: [tweetId], references: [id])
+  tweetId Int
+  user    User  @relation(fields: [userId], references: [id])
+  userId  Int
+
+  @@unique([tweetId, userId])
+}
